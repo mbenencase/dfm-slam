@@ -2,6 +2,11 @@
 
 A simple SLAM system based on feature matching using Deep Learning.
 
+# Next steps
+[] Include Bundle Adjustment
+[] Test pose estimation in different datasets
+[] Include Loop Closure
+
 # How to Install
 
 1. Clone this repository into a `catkin_workspace` inside the `src` folder. Then compile it.
@@ -23,6 +28,6 @@ pip install tqdm opencv-python~=4.5 numpy scipy
 
 3. Inside the `$ROOT/feature_tracker/scripts/feature_tracker.py`, modify the **first line** to the conda environment executable path.
 
-# How to Run
+# Performance
 
-Currently it was tested 
+Currently it was tested on `rgbd_dataset_freiburg1_xyz.bag` from: https://vision.in.tum.de/data/datasets/rgbd-dataset/download. The reconstruction you can see in the image below.
