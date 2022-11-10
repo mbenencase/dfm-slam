@@ -13,14 +13,6 @@ import geometry
 from DFM import DeepFeatureMatcher
 
 
-# Parameters for lucas kanade optical flow
-LK_PARAMS = dict(
-    winSize  = (30, 30),
-    maxLevel = 3,
-    criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 300, 0.001)
-)
-
-
 class FeatureTrackerNode(object):
     def __init__(self):
         rospy.init_node("feature_tracker_node", anonymous=True)
@@ -67,6 +59,7 @@ class FeatureTrackerNode(object):
             self.last_img = np.array(rgb_img)
             return
         else:
+            # --- Feature Matching --- #
             start = time.perf_counter()
             _, _, kpts0, kpts1 = self.matcher.match(
                 rgb_img.copy(), self.last_img.copy()
@@ -76,7 +69,6 @@ class FeatureTrackerNode(object):
             
             rospy.loginfo("Inference time = {:.2f} [ms]".format(spent))
 
-
             kpts0 = kpts0.T * 2.0 + 0.5
             kpts1 = kpts1.T * 2.0 + 0.5
             kpts1_int32 : np.ndarray = np.int0(kpts1)
@@ -85,7 +77,7 @@ class FeatureTrackerNode(object):
 
             depths = depth_img[y_int32, x_int32]
 
-            # Removing invalid depths
+            # -- Removing invalid depths --- #
             valid_depths = np.where(depths != 0)[0]
             depths = depths[valid_depths]
             kpts1 = kpts1[valid_depths]
@@ -93,7 +85,7 @@ class FeatureTrackerNode(object):
 
             p3d = geometry.get_3D_points(kpts1, self.K, depths)
 
-            # Pose Estimation
+            # -- Pose Estimation --- #
             start = time.perf_counter()
             ret, rvec, tvec, _ = cv2.solvePnPRansac(
                 p3d.reshape(-1, 1, 3).astype(np.float32),
@@ -106,7 +98,7 @@ class FeatureTrackerNode(object):
             )
             end = time.perf_counter()
             spent = (end - start) * 1000.0
-            rospy.loginfo("[INFO] Ransac estimation = {:.2f} [ms]".format(spent))
+            rospy.loginfo("[INFO] Pose estimation time = {:.2f} [ms]".format(spent))
 
             self.last_img = np.array(rgb_img)
 
@@ -117,18 +109,17 @@ class FeatureTrackerNode(object):
             T[0:3, 0:3] = R
             T[0:3, 3] = tvec
 
+            # --- Applying Update Transform --- #
             self.T = T @ self.T
 
             p3d = (np.linalg.inv(self.T) @ np.hstack([p3d, np.ones((len(p3d), 1))]).T).T
             p3d = p3d[:, :3].tolist()
 
+            # Including the new points to verify the reconstruction
             self.p3d += p3d
 
-            import pdb; pdb.set_trace()
-
+            # NOTE: Not necessary, just for visualization
             np.savetxt("p3d.xyz", self.p3d)
-
-            rospy.loginfo("[X Y Z] = [{:.2f} {:.2f} {:.2f}]".format(self.T[0:3, 3][0], self.T[0:3, 3][1], self.T[0:3, 3][2]))
 
             return
 
