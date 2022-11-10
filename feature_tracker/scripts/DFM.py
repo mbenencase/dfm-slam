@@ -3,7 +3,6 @@ import cv2 as cv
 import torch
 from torchvision import models, transforms
 from collections import namedtuple
-import matplotlib.pyplot as plt
 
 
 class DeepFeatureMatcher(torch.nn.Module):
@@ -186,20 +185,6 @@ class DeepFeatureMatcher(torch.nn.Module):
 
         return img_T, (pad_right, pad_bottom)  
     
-    @classmethod  
-    def plot_keypoints(cls, img, pts, title='untitled', *args):
-    
-        f,a = plt.subplots()
-        if len(args) > 0:
-            pts2 = args[0]
-            a.plot(pts2[0, :], pts2[1, :], marker='o', linestyle='none', color='green')
-        
-        a.plot(pts[0, :], pts[1, :], marker='+', linestyle='none', color='red')
-        a.imshow(img)
-        a.title.set_text(title)
-        plt.pause(0.001)
-        #plt.show() 
-          
 class Vgg19(torch.nn.Module):
     
     # modified from the original @ https://github.com/chenyuntc/pytorch-book/blob/master/chapter08-neural_style/PackedVGG.py
