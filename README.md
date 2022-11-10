@@ -3,10 +3,11 @@
 A simple SLAM system based on feature matching using Deep Learning.
 
 # Next steps
-[] Include Bundle Adjustment
-[] Test pose estimation in different datasets
-[] Include Loop Closure
-[] Optimize DFM Model to TensorRT
+- [x] Pose estimation using DFM
+- [ ] Include Bundle Adjustment
+- [ ] Test pose estimation in different datasets
+- [ ] Include Loop Closure
+- [ ] Optimize DFM Model to TensorRT
 
 # How to Install
 
