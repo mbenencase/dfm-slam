@@ -1,0 +1,8 @@
+*.pyc
+*.npy
+*.npz
+*.jpg
+*.jpeg
+/__pycache__/
+*.png
+*.xyz
